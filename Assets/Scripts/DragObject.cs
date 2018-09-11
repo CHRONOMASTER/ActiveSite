@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DragObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class DragObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
     public enum MouseButtom { Primary, Secondary, Middle };
 
     public MouseButtom mouseButtom = MouseButtom.Primary;
 
     RectTransform rect;
-    Vector3 startClickPos;
+    Vector2 startPos;
+    Vector2 startClickPos;
 
     private void Start()
     {
@@ -19,21 +20,26 @@ public class DragObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     
     public void OnPointerDown(PointerEventData eventData)
     {
-        startClickPos = Input.mousePosition;
-        Debug.Log(startClickPos);
+        startClickPos = MousePosUI();
+        startPos = rect.anchoredPosition;
     }
 
-    public void OnPointerDrag(PointerEventData eventData)
+    public void OnDrag(PointerEventData eventData)
     {
         if (Input.GetMouseButton((int)mouseButtom))
         {
-            rect.localPosition = Input.mousePosition - startClickPos;
+            rect.anchoredPosition = startPos + MousePosUI() - startClickPos;
         }
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        rect.localPosition = Vector3.zero;
+        rect.anchoredPosition = startPos;
+    }
+
+    private Vector2 MousePosUI()
+    {
+        return new Vector2(Input.mousePosition.x, Input.mousePosition.y);
     }
 
     // Update is called once per frame
